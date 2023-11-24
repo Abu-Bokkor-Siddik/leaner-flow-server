@@ -18,7 +18,7 @@ console.log(process.env.DB_PASS)
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.DB_NAME}:${process.env.DB_PASS}@cluster0.kkqbu90.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -30,10 +30,45 @@ const client = new MongoClient(uri, {
   }
 });
 
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
+
+    const cardcollection =client.db('learn').collection('card')
+// get all data 
+    app.get('/card',async(req,res)=>{
+      console.log(req.query)
+      let query ={}
+      if(req.query.tag){
+       query={tag:req.query.tag}
+      }
+      const result = await cardcollection.find(query).sort({date:-1}).toArray()
+      res.send(result)
+    })
+// get singel data 
+app.get('/card/:id',async(req,res)=>{
+  const id = req.params.id 
+  const query = {_id:new ObjectId(id)}
+  const result = await cardcollection.findOne(query)
+  res.send(result)
+})
+// update data 
+app.put('/card/:id',async(req,res)=>{
+  const id = req.params.id 
+  const filter = {_id:new ObjectId(id)}
+  const options ={upset:true}
+  const becomeUp = req.body 
+  console.log(req.body)
+  const update ={
+    $set:{    
+upvote:becomeUp.upvote
+    }
+  }
+ const result = await cardcollection.updateOne(filter,update,options)
+ res.send(result)
+})
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
