@@ -37,15 +37,46 @@ async function run() {
     await client.connect();
 
     const cardcollection =client.db('learn').collection('card')
+    const usercollection =client.db('learn').collection('user')
     const annoucecollection =client.db('learn').collection('annouce')
+
+    // save user 
+    app.post("/user",async(req,res)=>{
+      const user =req.body
+      // if user exist 
+      const query={email:user.email}
+      const exists = await usercollection.findOne(query);
+      if(exists){
+        return res.send({message:'exist user',insertedId:null})
+      }
+      const result = await usercollection.insertOne(user)
+      res.send(result)
+    })
+
+
+
+    // on data 
+    app.get('/user',async(req,res)=>{
+      const email=req.query.email 
+      const query={email:email};
+      console.log(email)
+      const result = await usercollection.findOne(query)
+      res.send(result)
+    })
 // get all data 
     app.get('/card',async(req,res)=>{
-      console.log(req.query)
+      // console.log(req.query)
+
       let query ={}
       if(req.query.tag){
        query={tag:req.query.tag}
       }
+      // pagination 
+      // const page =Number(req.query.page);
+      // const limit =Number(req.query.limit);
+      // const skip=(page-1)*limit    .skip(skip).limit(limit)
       const result = await cardcollection.find(query).sort({date:-1}).toArray()
+      // const total = await cardcollection.estimatedDocumentCount()
       res.send(result)
     })
 // get singel data 
