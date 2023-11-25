@@ -37,6 +37,7 @@ async function run() {
     await client.connect();
 
     const cardcollection =client.db('learn').collection('card')
+    const annoucecollection =client.db('learn').collection('annouce')
 // get all data 
     app.get('/card',async(req,res)=>{
       console.log(req.query)
@@ -63,11 +64,33 @@ app.put('/card/:id',async(req,res)=>{
   console.log(req.body)
   const update ={
     $set:{    
-upvote:becomeUp.upvote
+upvote:becomeUp.upvote,
+downvote:becomeUp.downvote
     }
   }
  const result = await cardcollection.updateOne(filter,update,options)
  res.send(result)
+})
+// use sort by upvote and downvote
+app.get('/vote',async(req,res)=>{
+  const result = await cardcollection.aggregate([
+{
+  $addFields:{
+    voteDefference:{$subtract:["$upvote","$downvote"]}
+  }
+},
+{
+  $sort:{voteDefference:-1}
+}
+  
+
+  ]).toArray()
+  res.send(result)
+})
+// annouce get 
+app.get("/annouce",async(req,res)=>{
+  const result = await annoucecollection.find().toArray()
+  res.send(result)
 })
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
