@@ -79,6 +79,14 @@ async function run() {
       // const total = await cardcollection.estimatedDocumentCount()
       res.send(result)
     })
+
+    // post in card 
+    app.post('/card',async(req,res)=>{
+      const CardItem = req.body 
+      const result =await cardcollection.insertOne(CardItem)
+      res.send(result)
+      // console.log(CardItem)
+    })
 // get singel data 
 app.get('/card/:id',async(req,res)=>{
   const id = req.params.id 
