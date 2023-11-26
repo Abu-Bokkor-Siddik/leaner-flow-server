@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const cors = require('cors')
 require('dotenv').config()
+const stripe = require('stripe')(process.env.KEY_HIDE)
 const port = 3005
 app.use(express.json())
 app.use(cors())
@@ -9,6 +10,7 @@ app.use(cors())
 
 console.log(process.env.DB_NAME)
 console.log(process.env.DB_PASS)
+console.log(process.env.KEY_HIDE)
 
 
 // wXaYtiTmu30GJQ7L
@@ -55,7 +57,7 @@ async function run() {
 
 
 
-    // on data 
+    // on data for profile 
     app.get('/user',async(req,res)=>{
       const email=req.query.email 
       const query={email:email};
@@ -110,6 +112,24 @@ downvote:becomeUp.downvote
  const result = await cardcollection.updateOne(filter,update,options)
  res.send(result)
 })
+// user info update 
+app.put('/update',async(req,res)=>{
+  const query= {email:req.query.email}
+  const options = {upset:true}
+  const becomeUp = req.body;
+  const update ={
+    $set:{
+      badge:becomeUp.badge,
+      
+      date:new Date().toLocaleString(),
+      status:true
+
+
+    }
+  }
+  const result = await usercollection.updateOne(query,update,options)
+  res.send(result)
+})
 // use sort by upvote and downvote
 app.get('/vote',async(req,res)=>{
   const result = await cardcollection.aggregate([
@@ -131,6 +151,23 @@ app.get("/annouce",async(req,res)=>{
   const result = await annoucecollection.find().toArray()
   res.send(result)
 })
+
+// payment indent 
+app.post('/create-payment-intent',async(req,res)=>{
+  const {price}=req.body;
+  const amount = parseInt(price*100)
+
+  console.log(amount)
+  const paymentIndent = await stripe.paymentIntents.create({
+    amount:amount,
+    currency:'usd',
+    payment_method_types:['card']
+  });
+  res.send({
+    ClientSecret:paymentIndent.client_secret
+  })
+})
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
