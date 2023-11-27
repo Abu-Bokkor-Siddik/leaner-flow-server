@@ -99,6 +99,38 @@ app.get('/mypost/:id',async(req,res)=>{
       const result = await usercollection.findOne(query)
       res.send(result)
     })
+    // all user 
+    app.get ('/users',async(req,res)=>{
+      const user = req.body 
+      const result = await usercollection.find(user).toArray()
+      res.send(result)
+    })
+    // make admin here 
+    app.patch('/users/admin:id',async(req,res)=>{
+      const id = req.params.id
+      // console.log(id)
+      const filter ={_id : new ObjectId(id)}
+      const updateadmin ={
+        $set:{
+          role:'admin'
+        }
+      }
+      const result = await usercollection.updateOne(filter,updateadmin)
+      res.send(result)
+    })
+    // find admin 
+    app.get('/user/admin/:email',async(req,res)=>{
+      const email = req.params.email 
+      const query ={email:email}
+      const user = await usercollection.findOne(query)
+      let admin = false;
+      if(user){
+        admin = user?.role ==='admin';
+    
+      }
+      res.send({admin})
+    
+    })
 // get all data 
     app.get('/card',async(req,res)=>{
       // console.log(req.query)
@@ -186,6 +218,12 @@ app.get("/annouce",async(req,res)=>{
   const result = await annoucecollection.find().toArray()
   res.send(result)
 })
+// post annouce 
+app.post ('/annouce',async(req,res)=>{
+  const annouces = req.body 
+  const result = await annoucecollection.insertOne(annouces)
+  res.send(result)
+})
 
 // payment indent 
 app.post('/create-payment-intent',async(req,res)=>{
@@ -227,6 +265,15 @@ app.get('/comment',async(req,res)=>{
  } catch (error) {
   console.log(error)
  }
+})
+// get only comment number with title 
+// http://localhost:3005/ass?title=Need help 
+app.get('/ass',async(req,res)=>{
+  const query={title:req.query.title}
+  const result = await commentcollection.find(query).toArray()
+  res.send(result)
+  console.log(query)
+
 })
 
 
