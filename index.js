@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
+const jwt = require('jsonwebtoken');
 require('dotenv').config()
 const stripe = require('stripe')(process.env.KEY_HIDE)
 const port = 3005
@@ -10,7 +11,8 @@ app.use(cors())
 
 console.log(process.env.DB_NAME)
 console.log(process.env.DB_PASS)
-console.log(process.env.KEY_HIDE)
+// console.log(process.env.KEY_HIDE)
+console.log(process.env.HIDE_KEY_SICRET)
 
 
 // wXaYtiTmu30GJQ7L
@@ -41,6 +43,38 @@ async function run() {
     const cardcollection =client.db('learn').collection('card')
     const usercollection =client.db('learn').collection('user')
     const annoucecollection =client.db('learn').collection('annouce')
+    const commentcollection =client.db('learn').collection('comment')
+// jwt is here 
+app.post('/jwt',async(req,res)=>{
+  try{
+    const users = req.body 
+    const token = jwt.sign(users,process.env.HIDE_KEY_SICRET,{expiresIn:'365d'})
+    res.send({token})
+  }catch(err){
+console.log(err)
+  }
+})
+// end here 
+
+// here is my get  api 
+app.get('/mypost',async(req,res)=>{
+ 
+  const email=req.query.email 
+  console.log(email)
+  const query={email:email};
+  const result = await cardcollection.find(query).toArray()
+  res.send(result)
+
+})
+// single my post api 
+app.get('/mypost/:id',async(req,res)=>{
+  const id = req.params.id 
+  const query ={ _id : new ObjectId(id)}
+  const result = await cardcollection.findOne(query)
+  res.send(result)
+})
+
+
 
     // save user 
     app.post("/user",async(req,res)=>{
@@ -96,6 +130,7 @@ app.get('/card/:id',async(req,res)=>{
   const result = await cardcollection.findOne(query)
   res.send(result)
 })
+
 // update data 
 app.put('/card/:id',async(req,res)=>{
   const id = req.params.id 
@@ -167,6 +202,33 @@ app.post('/create-payment-intent',async(req,res)=>{
     ClientSecret:paymentIndent.client_secret
   })
 })
+// comment api here ///
+app.post('/comment',async(req,res)=>{
+  try {
+    const comments = req.body 
+    const result = await commentcollection.insertOne(comments)
+    res.send(result)
+    
+  } catch (error) {
+    console.log(error)
+  }
+})
+// get api email and title  success full 
+app.get('/comment',async(req,res)=>{
+ try {
+  const query={}
+  if (req.query.email & req.query.title){
+    query={email:req.query.email,title:req.query.title}
+  }
+  const result = await commentcollection.find(query).toArray()
+  res.send(result)
+  
+  
+ } catch (error) {
+  console.log(error)
+ }
+})
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
