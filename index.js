@@ -45,6 +45,7 @@ async function run() {
     const annoucecollection =client.db('learn').collection('annouce')
     const commentcollection =client.db('learn').collection('comment')
     const reportcollection =client.db('learn').collection('report')
+    const tagcollection =client.db('learn').collection('tag')
 // jwt is here 
 app.post('/jwt',async(req,res)=>{
   try{
@@ -72,6 +73,13 @@ app.get('/mypost/:id',async(req,res)=>{
   const id = req.params.id 
   const query ={ _id : new ObjectId(id)}
   const result = await cardcollection.findOne(query)
+  res.send(result)
+})
+// delete card 
+app.delete('/mypost/:id',async(req,res)=>{
+  const id = req.params.id 
+  const query ={_id:new ObjectId(id)}
+  const result = await cardcollection.deleteOne(query)
   res.send(result)
 })
 
@@ -132,6 +140,8 @@ app.get('/mypost/:id',async(req,res)=>{
       res.send({admin})
     
     })
+  
+   
 // get all data 
     app.get('/card',async(req,res)=>{
       // console.log(req.query)
@@ -162,6 +172,13 @@ app.get('/card/:id',async(req,res)=>{
   const query = {_id:new ObjectId(id)}
   const result = await cardcollection.findOne(query)
   res.send(result)
+})
+// get 3 card in user my page ...
+app.get('/three',async(req,res)=>{
+  const query ={email:req.query.email}
+  const result = await cardcollection.find(query).sort({date:-1}).limit(3).toArray()
+  res.send(result)
+
 })
 
 // update data 
@@ -298,6 +315,29 @@ app.get('/report',async(req,res)=>{
   const result = await reportcollection.find().toArray()
   res.send(result)
 })
+// total user count 
+app.get('/number',async(req,res)=>{
+  const posts = await cardcollection.estimatedDocumentCount();
+  const commentes = await commentcollection.estimatedDocumentCount();
+  const users = await usercollection.estimatedDocumentCount();
+  res.send({
+    posts,
+    commentes,
+    users
+  })
+
+})
+// all tag post here 
+app.post('/tag',async(req,res)=>{
+  const tag = req.body 
+  const result = await tagcollection.insertOne(tag)
+  res.send(result)
+})
+// get all tag here 
+app.get('/tag',async(req,res)=>{
+  const result = await tagcollection.find().toArray()
+  res.send(result)
+})
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
@@ -306,6 +346,7 @@ app.get('/report',async(req,res)=>{
     // await client.close();
   }
 }
+// 
 run().catch(console.dir);
 
 
