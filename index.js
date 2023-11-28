@@ -44,6 +44,7 @@ async function run() {
     const usercollection =client.db('learn').collection('user')
     const annoucecollection =client.db('learn').collection('annouce')
     const commentcollection =client.db('learn').collection('comment')
+    const reportcollection =client.db('learn').collection('report')
 // jwt is here 
 app.post('/jwt',async(req,res)=>{
   try{
@@ -256,7 +257,7 @@ app.get('/comment',async(req,res)=>{
  try {
   const query={}
   if (req.query.email & req.query.title){
-    query={email:req.query.email,title:req.query.title}
+    query={title:req.query.title,email:req.query.email}
   }
   const result = await commentcollection.find(query).toArray()
   res.send(result)
@@ -266,17 +267,37 @@ app.get('/comment',async(req,res)=>{
   console.log(error)
  }
 })
+// only title  comment count a ata use korbo...
+app.get ('/comments/title',async(req,res)=>{
+  const query = {title:req.query.title}
+  console.log(query)
+  const result = await commentcollection.find(query).toArray()
+   res.send(result)
+})
 // get only comment number with title 
 // http://localhost:3005/ass?title=Need help 
-app.get('/ass',async(req,res)=>{
-  const query={title:req.query.title}
-  const result = await commentcollection.find(query).toArray()
-  res.send(result)
-  console.log(query)
+// app.get('/ass',async(req,res)=>{
+//   const query={title:req.query.title}
+//   const result = await commentcollection.find(query).toArray()
+//   res.send(result)
+//   console.log(query)
 
+// })
+
+
+
+//  here is post report in database 
+app.post('/report',async(req,res)=>{
+  const report = req.body 
+  const result = await reportcollection.insertOne(report)
+  res.send(result)
 })
 
-
+// get all report 
+app.get('/report',async(req,res)=>{
+  const result = await reportcollection.find().toArray()
+  res.send(result)
+})
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
