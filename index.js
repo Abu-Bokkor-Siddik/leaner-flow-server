@@ -9,10 +9,10 @@ app.use(express.json())
 app.use(cors())
 
 
-console.log(process.env.DB_NAME)
-console.log(process.env.DB_PASS)
+// console.log(process.env.DB_NAME)
+// console.log(process.env.DB_PASS)
 // console.log(process.env.KEY_HIDE)
-console.log(process.env.HIDE_KEY_SICRET)
+// console.log(process.env.HIDE_KEY_SICRET)
 
 
 // wXaYtiTmu30GJQ7L
@@ -62,7 +62,7 @@ console.log(err)
 app.get('/mypost',async(req,res)=>{
  
   const email=req.query.email 
-  console.log(email)
+  // console.log(email)
   const query={email:email};
   const result = await cardcollection.find(query).toArray()
   res.send(result)
@@ -84,7 +84,13 @@ app.delete('/mypost/:id',async(req,res)=>{
 })
 
 
-
+// delete user 
+app.delete('/users/:id',async(req,res)=>{
+  const id =req.params.id 
+  const query = {_id :new ObjectId(id)}
+  const result = await usercollection.deleteOne(query)
+  res.send(result)
+})
     // save user 
     app.post("/user",async(req,res)=>{
       const user =req.body
@@ -104,7 +110,7 @@ app.delete('/mypost/:id',async(req,res)=>{
     app.get('/user',async(req,res)=>{
       const email=req.query.email 
       const query={email:email};
-      console.log(email)
+      // console.log(email)
       const result = await usercollection.findOne(query)
       res.send(result)
     })
@@ -187,7 +193,7 @@ app.put('/card/:id',async(req,res)=>{
   const filter = {_id:new ObjectId(id)}
   const options ={upset:true}
   const becomeUp = req.body 
-  console.log(req.body)
+  // console.log(req.body)
   const update ={
     $set:{    
 upvote:becomeUp.upvote,
@@ -287,7 +293,7 @@ app.get('/comment',async(req,res)=>{
 // only title  comment count a ata use korbo...
 app.get ('/comments/title',async(req,res)=>{
   const query = {title:req.query.title}
-  console.log(query)
+  // console.log(query)
   const result = await commentcollection.find(query).toArray()
    res.send(result)
 })
