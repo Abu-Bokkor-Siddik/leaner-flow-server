@@ -38,7 +38,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const cardcollection =client.db('learn').collection('card')
     const usercollection =client.db('learn').collection('user')
@@ -298,7 +298,7 @@ app.get ('/comments/title',async(req,res)=>{
    res.send(result)
 })
 // get only comment number with title 
-// http://localhost:3005/ass?title=Need help 
+// https://learn-server-six.vercel.app/ass?title=Need help 
 // app.get('/ass',async(req,res)=>{
 //   const query={title:req.query.title}
 //   const result = await commentcollection.find(query).toArray()
@@ -345,8 +345,8 @@ app.get('/tag',async(req,res)=>{
   res.send(result)
 })
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
